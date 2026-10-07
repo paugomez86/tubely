@@ -55,15 +55,13 @@ func (cfg *apiConfig) handlerUploadThumbnail(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// Reading file headers
+	// Reading file headers and filtering types
 	mediaType, _, err := mime.ParseMediaType(fileHeader.Header.Get("Content-Type"))
-
-	// Filtering types
 	allowedTypes := []string{
 		"image/png",
 		"image/jpeg",
 	}
-	if !slices.Contains(allowedTypes, mediaType) {
+	if err != nil || !slices.Contains(allowedTypes, mediaType) {
 		respondWithError(w, http.StatusBadRequest, "Thumbnail type not allowed", err)
 		return
 	}

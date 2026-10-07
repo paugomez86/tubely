@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
@@ -10,6 +11,9 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 type apiConfig struct {
@@ -22,6 +26,7 @@ type apiConfig struct {
 	s3Region         string
 	s3CfDistribution string
 	port             string
+	s3Client         *s3.Client
 }
 
 type thumbnail struct {
@@ -96,11 +101,20 @@ func main() {
 		port:             port,
 	}
 
+	// Setting AWS S3 config
+	awsConfig, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(cfg.s3Region))
+	if err != nil {
+		log.Fatalf("Error loading S3 configuration: %v\n", err)
+	}
+	cfg.s3Client = s3.NewFromConfig(awsConfig)
+
+	// Creating assets directory
 	err = cfg.ensureAssetsDir()
 	if err != nil {
 		log.Fatalf("Couldn't create assets directory: %v", err)
 	}
 
+	// Server multiplexor config and handlers
 	mux := http.NewServeMux()
 	appHandler := http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot)))
 	mux.Handle("/app/", appHandler)
@@ -124,6 +138,7 @@ func main() {
 
 	mux.HandleFunc("POST /admin/reset", cfg.handlerReset)
 
+	// Server setup
 	srv := &http.Server{
 		Addr:    ":" + port,
 		Handler: mux,
