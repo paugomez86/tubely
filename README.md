@@ -48,7 +48,7 @@ To run this project locally or in production, configure the required AWS resourc
    - Under the user's **Security credentials** tab, create an **Access Key**.
    - Save the **Access Key ID** and **Secret Access Key**.
 
-### 3. AWS CLI configuration
+### 3. AWS CLI
 1. Install [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 2. Run `aws configure`
 3. Enter your IAM **Access Key ID** and **Secret Access Key**
