@@ -51,7 +51,7 @@ To run this project locally or in production, configure the required AWS resourc
 ### 3. AWS CLI configuration
 1. Install [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 2. Run `aws configure`
-3. Enter access and secret keys
+3. Enter your IAM **Access Key ID** and **Secret Access Key**
 4. You can leave region and format blank
 
 ### 4. CloudFront Distribution (CDN)
