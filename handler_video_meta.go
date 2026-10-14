@@ -2,8 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bootdotdev/learn-file-storage-s3-golang-starter/internal/auth"
 	"github.com/bootdotdev/learn-file-storage-s3-golang-starter/internal/database"
 	"github.com/google/uuid"
@@ -78,6 +81,20 @@ func (cfg *apiConfig) handlerVideoMetaDelete(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	// Deleting video from s3
+	videoURLSplit := strings.Split(*video.VideoURL, "/")
+	s3key := fmt.Sprintf("%v/%v", videoURLSplit[3], videoURLSplit[4])
+	input := s3.DeleteObjectInput{
+		Bucket: &cfg.s3Bucket,
+		Key:    &s3key,
+	}
+	fmt.Printf("Deleting video %v with key %v", video.ID, s3key)
+	_, err = cfg.s3Client.DeleteObject(r.Context(), &input)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't delete video", err)
+		return
+	}
+
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -92,12 +109,6 @@ func (cfg *apiConfig) handlerVideoGet(w http.ResponseWriter, r *http.Request) {
 	video, err := cfg.db.GetVideo(videoID)
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, "Couldn't get video", err)
-		return
-	}
-	// Generating signed URL
-	video, err = cfg.dbVideoToSignedVideo(video)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error getting video", err)
 		return
 	}
 
@@ -120,15 +131,6 @@ func (cfg *apiConfig) handlerVideosRetrieve(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve videos", err)
 		return
-	}
-
-	// Generating signed URLS
-	for i, _ := range videos {
-		videos[i], err = cfg.dbVideoToSignedVideo(videos[i])
-		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "Error retrieving videos", err)
-			return
-		}
 	}
 
 	respondWithJSON(w, http.StatusOK, videos)
