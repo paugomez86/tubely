@@ -1,8 +1,7 @@
 # Media File Server & CDN
 
-A scalable media processing and file-serving backend written in Go, backed by Amazon S3 storage and CloudFront CDN distribution. This project is based on the course [Learn File Servers and CDNs with S3 and CloudFront](https://www.boot.dev/courses/learn-file-servers-s3-cloudfront-golang) on [Boot.dev](boot.dev).
+A scalable media processing and file-serving backend written in Go, backed by Amazon S3 storage and CloudFront CDN distribution. This project is a fork from [Learn File Servers and CDNs with S3 and CloudFront](https://www.boot.dev/courses/learn-file-servers-s3-cloudfront-golang) on [Boot.dev](boot.dev).
 
----
 
 ## Features
 
@@ -11,7 +10,6 @@ A scalable media processing and file-serving backend written in Go, backed by Am
 - Global, low-latency caching and content delivery via Amazon CloudFront.
 - Least-privilege AWS IAM policies and access control.
 
----
 
 ## Architecture Overview
 
@@ -20,7 +18,35 @@ A scalable media processing and file-serving backend written in Go, backed by Am
 3. **Server** uploads the processed asset directly to a private **Amazon S3** bucket using authenticated AWS credentials.
 4. **CloudFront** fronts the S3 bucket using Origin Access Control (OAC), serving cached content globally while keeping the bucket private.
 
----
+
+## Getting started
+
+### 1. Clone the repo
+
+```
+git clone https://github.com/paugomez86/tubely
+```
+
+### 2. Install Go toolchain
+
+You may follow the instructions from the [official website](https://go.dev/doc/install).
+
+### 3. Install dependencies
+
+```
+go mod download
+
+sudo apt update
+sudo apt install ffmpeg
+sudo apt install sqlite3
+```
+
+### 4. Sync environment
+
+```
+go mod tidy
+go mod verify
+```
 
 ## AWS Setup Guide
 
@@ -62,7 +88,7 @@ To run this project locally or in production, configure the required AWS resourc
    - Update the S3 bucket policy with the statement CloudFront provides to allow read access from the distribution.
 3. Once deployed, note down the **Distribution domain name** (e.g., `d123456abcdef.cloudfront.net`).
 
----
+
 
 ## Local Development
 
